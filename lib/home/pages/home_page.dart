@@ -13,8 +13,9 @@ class HomePage extends StatefulWidget {
 
 class _HomePageState extends State<HomePage> {
   List<bool> isSaved = [];
-
   List<UserModel>? _userModel = [];
+  List<UserModel>? searchList = [];
+
   @override
   void initState() {
     super.initState();
@@ -27,170 +28,196 @@ class _HomePageState extends State<HomePage> {
       _userModel!.length,
       (index) => false,
     );
+    searchList!.addAll(_userModel!);
+    setState(() {});
+  }
+
+  void search(String value) {
+    searchList!.clear();
+    if (value.isEmpty) {
+      searchList!.addAll(_userModel!);
+    } else {
+      for (int i = 0; i < _userModel!.length; i++) {
+        if (_userModel![i].name.toLowerCase().contains(
+              value.toLowerCase(),
+            )) {
+          searchList!.add(_userModel![i]);
+        }
+      }
+    }
     setState(() {});
   }
 
   @override
   Widget build(BuildContext context) {
     return SafeArea(
-      child: Stack(
-        children: [
-          Container(
-            height: MediaQuery.of(context).size.height,
-            width: MediaQuery.of(context).size.width,
-            decoration: const BoxDecoration(
-              gradient: LinearGradient(
-                begin: Alignment.centerLeft,
-                end: Alignment.centerRight,
-                colors: [
-                  Color.fromRGBO(73, 123, 125, 1),
-                  Color.fromRGBO(17, 28, 76, 1),
-                ],
+      child: GestureDetector(
+        onTap: () {
+          FocusScope.of(context).unfocus();
+        },
+        child: Stack(
+          children: [
+            Container(
+              height: MediaQuery.of(context).size.height,
+              width: MediaQuery.of(context).size.width,
+              decoration: const BoxDecoration(
+                gradient: LinearGradient(
+                  begin: Alignment.centerLeft,
+                  end: Alignment.centerRight,
+                  colors: [
+                    Color.fromRGBO(73, 123, 125, 1),
+                    Color.fromRGBO(17, 28, 76, 1),
+                  ],
+                ),
               ),
             ),
-          ),
-          Scaffold(
-            backgroundColor: Colors.transparent,
-            body: Center(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.center,
-                children: [
-                  const Padding(
-                    padding: EdgeInsets.only(
-                      top: 15.0,
-                    ),
-                    child: Text(
-                      'ROBOFRIENDS',
-                      style: TextStyle(
-                        fontFamily: 'Monoton',
-                        fontSize: 35,
-                        color: Color.fromRGBO(
-                          121,
-                          196,
-                          194,
-                          1,
-                        ),
+            Scaffold(
+              backgroundColor: Colors.transparent,
+              body: Center(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  children: [
+                    const Padding(
+                      padding: EdgeInsets.only(
+                        top: 15.0,
                       ),
-                    ),
-                  ),
-                  Padding(
-                    padding: const EdgeInsets.only(
-                      top: 30,
-                      left: 50,
-                      right: 50,
-                    ),
-                    child: TextField(
-                      decoration: InputDecoration(
-                        hintStyle: GoogleFonts.roboto(),
-                        hintText: 'Search Robots',
-                        fillColor: Colors.white,
-                        filled: true,
-                        focusedBorder: const OutlineInputBorder(
-                          borderSide: BorderSide(
-                            color: Colors.white,
-                            style: BorderStyle.solid,
-                          ),
-                        ),
-                        enabledBorder: const OutlineInputBorder(
-                          borderSide: BorderSide(
-                            color: Colors.white,
-                            style: BorderStyle.solid,
+                      child: Text(
+                        'ROBOFRIENDS',
+                        style: TextStyle(
+                          fontFamily: 'Monoton',
+                          fontSize: 35,
+                          color: Color.fromRGBO(
+                            121,
+                            196,
+                            194,
+                            1,
                           ),
                         ),
                       ),
                     ),
-                  ),
-                  const SizedBox(
-                    height: 15,
-                  ),
-                  _userModel == null || _userModel!.isEmpty
-                      ? const Center(
-                          child: CircularProgressIndicator(),
-                        )
-                      : Expanded(
-                          child: Padding(
-                            padding: const EdgeInsets.all(8.0),
-                            child: GridView.builder(
-                                gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                                  crossAxisCount: 2,
-                                ),
-                                itemCount: _userModel!.length,
-                                itemBuilder: (BuildContext context, int index) {
-                                  return Stack(
-                                    children: [
-                                      Card(
-                                        color: const Color.fromRGBO(
-                                          187,
-                                          231,
-                                          210,
-                                          1,
-                                        ),
-                                        child: Center(
-                                          child: Column(
-                                            mainAxisAlignment: MainAxisAlignment.center,
-                                            children: [
-                                              Expanded(
-                                                child: CachedNetworkImage(
-                                                  imageUrl: "https://robohash.org/${_userModel![index].id}?200x200",
-                                                  progressIndicatorBuilder: (context, url, downloadProgress) => Center(
-                                                    child: CircularProgressIndicator(
-                                                      value: downloadProgress.progress,
+                    Padding(
+                      padding: const EdgeInsets.only(
+                        top: 30,
+                        left: 50,
+                        right: 50,
+                      ),
+                      child: TextField(
+                        onChanged: (value) {
+                          search(value);
+                        },
+                        decoration: InputDecoration(
+                          hintStyle: GoogleFonts.roboto(),
+                          hintText: 'Search Robots',
+                          fillColor: Colors.white,
+                          filled: true,
+                          focusedBorder: const OutlineInputBorder(
+                            borderSide: BorderSide(
+                              color: Colors.white,
+                              style: BorderStyle.solid,
+                            ),
+                          ),
+                          enabledBorder: const OutlineInputBorder(
+                            borderSide: BorderSide(
+                              color: Colors.white,
+                              style: BorderStyle.solid,
+                            ),
+                          ),
+                        ),
+                      ),
+                    ),
+                    const SizedBox(
+                      height: 15,
+                    ),
+                    _userModel == null || _userModel!.isEmpty
+                        ? const Center(
+                            child: CircularProgressIndicator(),
+                          )
+                        : Expanded(
+                            child: Padding(
+                              padding: const EdgeInsets.all(8.0),
+                              child: GridView.builder(
+                                  gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                                    crossAxisCount: 2,
+                                  ),
+                                  itemCount: searchList!.length,
+                                  itemBuilder: (BuildContext context, int index) {
+                                    return Stack(
+                                      children: [
+                                        Card(
+                                          color: const Color.fromRGBO(
+                                            187,
+                                            231,
+                                            210,
+                                            1,
+                                          ),
+                                          child: Center(
+                                            child: Column(
+                                              mainAxisAlignment: MainAxisAlignment.center,
+                                              children: [
+                                                Expanded(
+                                                  child: CachedNetworkImage(
+                                                    imageUrl: "https://robohash.org/${searchList![index].id}?200x200",
+                                                    progressIndicatorBuilder: (context, url, downloadProgress) =>
+                                                        Center(
+                                                      child: CircularProgressIndicator(
+                                                        value: downloadProgress.progress,
+                                                      ),
+                                                    ),
+                                                    errorWidget: (context, url, error) => const Icon(
+                                                      Icons.error,
                                                     ),
                                                   ),
-                                                  errorWidget: (context, url, error) => const Icon(
-                                                    Icons.error,
+                                                ),
+                                                const SizedBox(
+                                                  height: 10,
+                                                ),
+                                                Text(
+                                                  searchList![index].name,
+                                                  textAlign: TextAlign.center,
+                                                  style: const TextStyle(
+                                                    fontWeight: FontWeight.bold,
+                                                    fontSize: 20,
                                                   ),
                                                 ),
-                                              ),
-                                              const SizedBox(
-                                                height: 10,
-                                              ),
-                                              Text(
-                                                _userModel![index].name,
-                                                textAlign: TextAlign.center,
-                                                style: const TextStyle(
-                                                  fontWeight: FontWeight.bold,
-                                                  fontSize: 20,
+                                                const SizedBox(
+                                                  height: 10,
                                                 ),
-                                              ),
-                                              const SizedBox(
-                                                height: 10,
-                                              ),
-                                              Text(
-                                                _userModel![index].email,
-                                              ),
-                                              const SizedBox(
-                                                height: 10,
-                                              ),
-                                            ],
+                                                Text(
+                                                  searchList![index].email,
+                                                ),
+                                                const SizedBox(
+                                                  height: 10,
+                                                ),
+                                              ],
+                                            ),
                                           ),
                                         ),
-                                      ),
-                                      Positioned(
-                                        right: -3,
-                                        top: -4,
-                                        child: IconButton(
-                                          onPressed: () {
-                                            setState(() {
-                                              isSaved[index] = !isSaved[index];
-                                            });
-                                          },
-                                          icon: Icon(
-                                            isSaved[index] ? Icons.favorite : Icons.favorite_border,
-                                            color: isSaved[index] ? Colors.red : Colors.black,
+                                        Positioned(
+                                          right: -3,
+                                          top: -4,
+                                          child: IconButton(
+                                            onPressed: () {
+                                              setState(() {
+                                                isSaved[index] = !isSaved[index];
+                                              });
+                                            },
+                                            icon: Icon(
+                                              isSaved[index] ? Icons.favorite : Icons.favorite_border,
+                                              color: isSaved[index] ? Colors.red : Colors.black,
+                                            ),
                                           ),
                                         ),
-                                      ),
-                                    ],
-                                  );
-                                }),
+                                      ],
+                                    );
+                                  }),
+                            ),
                           ),
-                        ),
-                ],
+                  ],
+                ),
               ),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }
