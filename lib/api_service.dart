@@ -1,3 +1,5 @@
+import 'dart:developer';
+
 import 'package:http/http.dart' as http;
 import 'package:robo_friends/model/user_model.dart';
 
@@ -11,9 +13,7 @@ class ApiService {
         return model;
       }
     } catch (e) {
-      print(
-        e.toString(),
-      );
+      log(e.toString());
     }
   }
 }

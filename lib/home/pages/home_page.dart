@@ -1,3 +1,4 @@
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:robo_friends/api_service.dart';
@@ -11,6 +12,8 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
+  List<bool> isSaved = [];
+
   List<UserModel>? _userModel = [];
   @override
   void initState() {
@@ -20,7 +23,11 @@ class _HomePageState extends State<HomePage> {
 
   void _getData() async {
     _userModel = (await ApiService().getUsers())!;
-    Future.delayed(const Duration(seconds: 1)).then((value) => setState(() {}));
+    isSaved = List.generate(
+      _userModel!.length,
+      (index) => false,
+    );
+    setState(() {});
   }
 
   @override
@@ -109,46 +116,72 @@ class _HomePageState extends State<HomePage> {
                                 ),
                                 itemCount: _userModel!.length,
                                 itemBuilder: (BuildContext context, int index) {
-                                  return Card(
-                                    color: const Color.fromRGBO(
-                                      187,
-                                      231,
-                                      210,
-                                      1,
-                                    ),
-                                    child: Center(
-                                      child: Column(
-                                        mainAxisAlignment: MainAxisAlignment.center,
-                                        children: [
-                                          Expanded(
-                                            child: Image(
-                                              image:
-                                                  NetworkImage('https://robohash.org/${_userModel![index].id}?200x200'),
-                                            ),
+                                  return Stack(
+                                    children: [
+                                      Card(
+                                        color: const Color.fromRGBO(
+                                          187,
+                                          231,
+                                          210,
+                                          1,
+                                        ),
+                                        child: Center(
+                                          child: Column(
+                                            mainAxisAlignment: MainAxisAlignment.center,
+                                            children: [
+                                              Expanded(
+                                                child: CachedNetworkImage(
+                                                  imageUrl: "https://robohash.org/${_userModel![index].id}?200x200",
+                                                  progressIndicatorBuilder: (context, url, downloadProgress) => Center(
+                                                    child: CircularProgressIndicator(
+                                                      value: downloadProgress.progress,
+                                                    ),
+                                                  ),
+                                                  errorWidget: (context, url, error) => const Icon(
+                                                    Icons.error,
+                                                  ),
+                                                ),
+                                              ),
+                                              const SizedBox(
+                                                height: 10,
+                                              ),
+                                              Text(
+                                                _userModel![index].name,
+                                                textAlign: TextAlign.center,
+                                                style: const TextStyle(
+                                                  fontWeight: FontWeight.bold,
+                                                  fontSize: 20,
+                                                ),
+                                              ),
+                                              const SizedBox(
+                                                height: 10,
+                                              ),
+                                              Text(
+                                                _userModel![index].email,
+                                              ),
+                                              const SizedBox(
+                                                height: 10,
+                                              ),
+                                            ],
                                           ),
-                                          const SizedBox(
-                                            height: 10,
-                                          ),
-                                          Text(
-                                            _userModel![index].name,
-                                            textAlign: TextAlign.center,
-                                            style: const TextStyle(
-                                              fontWeight: FontWeight.bold,
-                                              fontSize: 20,
-                                            ),
-                                          ),
-                                          const SizedBox(
-                                            height: 10,
-                                          ),
-                                          Text(
-                                            _userModel![index].email,
-                                          ),
-                                          const SizedBox(
-                                            height: 10,
-                                          ),
-                                        ],
+                                        ),
                                       ),
-                                    ),
+                                      Positioned(
+                                        right: -3,
+                                        top: -4,
+                                        child: IconButton(
+                                          onPressed: () {
+                                            setState(() {
+                                              isSaved[index] = !isSaved[index];
+                                            });
+                                          },
+                                          icon: Icon(
+                                            isSaved[index] ? Icons.favorite : Icons.favorite_border,
+                                            color: isSaved[index] ? Colors.red : Colors.black,
+                                          ),
+                                        ),
+                                      ),
+                                    ],
                                   );
                                 }),
                           ),
