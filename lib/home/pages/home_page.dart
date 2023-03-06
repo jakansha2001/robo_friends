@@ -1,8 +1,9 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:robo_friends/api_service.dart';
 import 'package:robo_friends/model/user_model.dart';
+import 'package:robo_friends/service/api_service.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
@@ -12,9 +13,9 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
-  List<bool> isSaved = [];
   List<UserModel>? _userModel = [];
   List<UserModel>? searchList = [];
+  SharedPreferences? prefs;
 
   @override
   void initState() {
@@ -23,11 +24,11 @@ class _HomePageState extends State<HomePage> {
   }
 
   void _getData() async {
+    prefs = await SharedPreferences.getInstance();
     _userModel = (await ApiService().getUsers())!;
-    isSaved = List.generate(
-      _userModel!.length,
-      (index) => false,
-    );
+    for (int i = 0; i < _userModel!.length; i++) {
+      _userModel![i].isSaved = prefs!.getBool(_userModel![i].id.toString()) ?? false;
+    }
     searchList!.addAll(_userModel!);
     setState(() {});
   }
@@ -136,6 +137,7 @@ class _HomePageState extends State<HomePage> {
                             child: Padding(
                               padding: const EdgeInsets.all(8.0),
                               child: GridView.builder(
+                                  physics: const BouncingScrollPhysics(),
                                   gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
                                     crossAxisCount: 2,
                                   ),
@@ -196,14 +198,21 @@ class _HomePageState extends State<HomePage> {
                                           right: -3,
                                           top: -4,
                                           child: IconButton(
-                                            onPressed: () {
+                                            onPressed: () async {
+                                              var prefs = await SharedPreferences.getInstance();
+
                                               setState(() {
-                                                isSaved[index] = !isSaved[index];
+                                                _userModel![index].isSaved = !_userModel![index].isSaved;
+                                                searchList![index].isSaved = _userModel![index].isSaved;
                                               });
+                                              prefs.setBool(
+                                                searchList![index].id.toString(),
+                                                searchList![index].isSaved,
+                                              );
                                             },
                                             icon: Icon(
-                                              isSaved[index] ? Icons.favorite : Icons.favorite_border,
-                                              color: isSaved[index] ? Colors.red : Colors.black,
+                                              searchList![index].isSaved ? Icons.favorite : Icons.favorite_border,
+                                              color: searchList![index].isSaved ? Colors.red : Colors.black,
                                             ),
                                           ),
                                         ),

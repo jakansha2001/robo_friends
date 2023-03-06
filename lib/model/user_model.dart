@@ -15,6 +15,7 @@ class UserModel {
     required this.phone,
     required this.website,
     required this.company,
+    this.isSaved = false,
   });
 
   int id;
@@ -25,6 +26,7 @@ class UserModel {
   String phone;
   String website;
   Company company;
+  bool isSaved;
 
   factory UserModel.fromJson(Map<String, dynamic> json) => UserModel(
         id: json["id"],
