@@ -13,9 +13,15 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
+  /// Stores the data from the user API
   List<UserModel>? _userModel = [];
-  List<UserModel>? searchList = [];
-  SharedPreferences? prefs;
+
+  /// Stores the filtered data
+  // ignore: prefer_final_fields
+  List<UserModel>? _searchList = [];
+
+  /// Object of SharedPreferences to save the favourite robot
+  SharedPreferences? _prefs;
 
   @override
   void initState() {
@@ -23,42 +29,52 @@ class _HomePageState extends State<HomePage> {
     _getData();
   }
 
+  /// This function gets the users from the API.
+  /// It also fetches the existing stored favourite from SharedPreference.
+  /// It also initializes [_searchList] with [_userModel]
   void _getData() async {
-    prefs = await SharedPreferences.getInstance();
-    _userModel = (await ApiService().getUsers())!;
+    _prefs = await SharedPreferences.getInstance();
+    _userModel = await ApiService.getUsers();
     for (int i = 0; i < _userModel!.length; i++) {
-      _userModel![i].isSaved = prefs!.getBool(_userModel![i].id.toString()) ?? false;
+      _userModel![i].isSaved = _prefs!.getBool(_userModel![i].id.toString()) ?? false;
     }
-    searchList!.addAll(_userModel!);
+    _searchList!.addAll(_userModel!);
     setState(() {});
   }
 
-  void search(String value) {
-    searchList!.clear();
+  /// This function performs the search functionality.
+  /// It takes [value] as a parameter which is the search string
+  /// typed by the user for searching the robots.
+  void _search(String value) {
+    _searchList!.clear();
     if (value.isEmpty) {
-      searchList!.addAll(_userModel!);
+      _searchList!.addAll(_userModel!);
     } else {
       for (int i = 0; i < _userModel!.length; i++) {
         if (_userModel![i].name.toLowerCase().contains(
               value.toLowerCase(),
             )) {
-          searchList!.add(_userModel![i]);
+          _searchList!.add(_userModel![i]);
         }
       }
     }
     setState(() {});
   }
 
+  /// This function saves the favourite robot.
+  /// It saves the robot of particular [index]
+  /// on which the user tap favourite.
+  /// It is stored in SharedPreferences with user id as the key.
   void storeFavourite(int index) async {
     var prefs = await SharedPreferences.getInstance();
 
     setState(() {
       _userModel![index].isSaved = !_userModel![index].isSaved;
-      searchList![index].isSaved = _userModel![index].isSaved;
+      _searchList![index].isSaved = _userModel![index].isSaved;
     });
     prefs.setBool(
-      searchList![index].id.toString(),
-      searchList![index].isSaved,
+      _searchList![index].id.toString(),
+      _searchList![index].isSaved,
     );
   }
 
@@ -104,7 +120,7 @@ class _HomePageState extends State<HomePage> {
                       ),
                       child: TextField(
                         onChanged: (value) {
-                          search(value);
+                          _search(value);
                         },
                         decoration: ThemeConstants.searchFieldDecoration,
                       ),
@@ -124,11 +140,11 @@ class _HomePageState extends State<HomePage> {
                                   gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
                                     crossAxisCount: 2,
                                   ),
-                                  itemCount: searchList!.length,
+                                  itemCount: _searchList!.length,
                                   itemBuilder: (BuildContext context, int index) {
                                     return Stack(
                                       children: [
-                                        RobotCard(model: searchList![index]),
+                                        RobotCard(model: _searchList![index]),
                                         Positioned(
                                           right: -3,
                                           top: -4,
@@ -137,8 +153,8 @@ class _HomePageState extends State<HomePage> {
                                               storeFavourite(index);
                                             },
                                             icon: Icon(
-                                              searchList![index].isSaved ? Icons.favorite : Icons.favorite_border,
-                                              color: searchList![index].isSaved ? Colors.red : Colors.black,
+                                              _searchList![index].isSaved ? Icons.favorite : Icons.favorite_border,
+                                              color: _searchList![index].isSaved ? Colors.red : Colors.black,
                                             ),
                                           ),
                                         ),
