@@ -1,16 +1,18 @@
-# robo_friends
+# 🤖 **Robo Friends**
+This application is developed with Flutter. 
 
-A new Flutter project.
+It is a great example to learn the following things:
+- Cool and beautiful UI (Background Gradient, GridView, Custom Positioning inside Stack, etc.)
+- Rest API with HTTP
+- Using Custom Fonts
+- Feature Driven Architecture
+- Single Responsibility Principle
 
-## Getting Started
+This application fetches users from https://jsonplaceholder.typicode.com/users and it also fetches robot images from https://robohash.org/${id}?200x200.
 
-This project is a starting point for a Flutter application.
+It implements lazy loading using GridView.builder and caching using CachedNetworkImage. 
 
-A few resources to get you started if this is your first Flutter project:
+User can search for a particular robot and can also save their favourite robots in SharedPreference. 
 
-- [Lab: Write your first Flutter app](https://docs.flutter.dev/get-started/codelab)
-- [Cookbook: Useful Flutter samples](https://docs.flutter.dev/cookbook)
+https://user-images.githubusercontent.com/64529996/223422400-e6a3cbfd-af1b-47ea-820b-ce873fdde6a9.mp4
 
-For help getting started with Flutter development, view the
-[online documentation](https://docs.flutter.dev/), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
