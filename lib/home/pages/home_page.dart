@@ -1,8 +1,8 @@
-import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
+import 'package:robo_friends/home/widgets/widgets.dart';
 import 'package:robo_friends/model/user_model.dart';
 import 'package:robo_friends/service/api_service.dart';
+import 'package:robo_friends/utils/constants.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class HomePage extends StatefulWidget {
@@ -49,6 +49,19 @@ class _HomePageState extends State<HomePage> {
     setState(() {});
   }
 
+  void storeFavourite(int index) async {
+    var prefs = await SharedPreferences.getInstance();
+
+    setState(() {
+      _userModel![index].isSaved = !_userModel![index].isSaved;
+      searchList![index].isSaved = _userModel![index].isSaved;
+    });
+    prefs.setBool(
+      searchList![index].id.toString(),
+      searchList![index].isSaved,
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return SafeArea(
@@ -58,20 +71,7 @@ class _HomePageState extends State<HomePage> {
         },
         child: Stack(
           children: [
-            Container(
-              height: MediaQuery.of(context).size.height,
-              width: MediaQuery.of(context).size.width,
-              decoration: const BoxDecoration(
-                gradient: LinearGradient(
-                  begin: Alignment.centerLeft,
-                  end: Alignment.centerRight,
-                  colors: [
-                    Color.fromRGBO(73, 123, 125, 1),
-                    Color.fromRGBO(17, 28, 76, 1),
-                  ],
-                ),
-              ),
-            ),
+            const BackgroundGradient(),
             Scaffold(
               backgroundColor: Colors.transparent,
               body: Center(
@@ -106,24 +106,7 @@ class _HomePageState extends State<HomePage> {
                         onChanged: (value) {
                           search(value);
                         },
-                        decoration: InputDecoration(
-                          hintStyle: GoogleFonts.roboto(),
-                          hintText: 'Search Robots',
-                          fillColor: Colors.white,
-                          filled: true,
-                          focusedBorder: const OutlineInputBorder(
-                            borderSide: BorderSide(
-                              color: Colors.white,
-                              style: BorderStyle.solid,
-                            ),
-                          ),
-                          enabledBorder: const OutlineInputBorder(
-                            borderSide: BorderSide(
-                              color: Colors.white,
-                              style: BorderStyle.solid,
-                            ),
-                          ),
-                        ),
+                        decoration: ThemeConstants.searchFieldDecoration,
                       ),
                     ),
                     const SizedBox(
@@ -145,70 +128,13 @@ class _HomePageState extends State<HomePage> {
                                   itemBuilder: (BuildContext context, int index) {
                                     return Stack(
                                       children: [
-                                        Card(
-                                          color: const Color.fromRGBO(
-                                            187,
-                                            231,
-                                            210,
-                                            1,
-                                          ),
-                                          child: Center(
-                                            child: Column(
-                                              mainAxisAlignment: MainAxisAlignment.center,
-                                              children: [
-                                                Expanded(
-                                                  child: CachedNetworkImage(
-                                                    imageUrl: "https://robohash.org/${searchList![index].id}?200x200",
-                                                    progressIndicatorBuilder: (context, url, downloadProgress) =>
-                                                        Center(
-                                                      child: CircularProgressIndicator(
-                                                        value: downloadProgress.progress,
-                                                      ),
-                                                    ),
-                                                    errorWidget: (context, url, error) => const Icon(
-                                                      Icons.error,
-                                                    ),
-                                                  ),
-                                                ),
-                                                const SizedBox(
-                                                  height: 10,
-                                                ),
-                                                Text(
-                                                  searchList![index].name,
-                                                  textAlign: TextAlign.center,
-                                                  style: const TextStyle(
-                                                    fontWeight: FontWeight.bold,
-                                                    fontSize: 20,
-                                                  ),
-                                                ),
-                                                const SizedBox(
-                                                  height: 10,
-                                                ),
-                                                Text(
-                                                  searchList![index].email,
-                                                ),
-                                                const SizedBox(
-                                                  height: 10,
-                                                ),
-                                              ],
-                                            ),
-                                          ),
-                                        ),
+                                        RobotCard(model: searchList![index]),
                                         Positioned(
                                           right: -3,
                                           top: -4,
                                           child: IconButton(
-                                            onPressed: () async {
-                                              var prefs = await SharedPreferences.getInstance();
-
-                                              setState(() {
-                                                _userModel![index].isSaved = !_userModel![index].isSaved;
-                                                searchList![index].isSaved = _userModel![index].isSaved;
-                                              });
-                                              prefs.setBool(
-                                                searchList![index].id.toString(),
-                                                searchList![index].isSaved,
-                                              );
+                                            onPressed: () {
+                                              storeFavourite(index);
                                             },
                                             icon: Icon(
                                               searchList![index].isSaved ? Icons.favorite : Icons.favorite_border,
